@@ -101,35 +101,25 @@ class Update < Command
   def run
     config = YAML.load_file(File.join(File.expand_path(File.dirname(__FILE__)), 'vim.yaml'))
     $stdout.printf("[vim] [%s] [config=%s]\n", name(), config.inspect.to_s())
-    config.each_key { |ext_point|
-      # the ext-point is an extension point within vim (i'm a relative vim newb; so i think this maps directly to a
-      # plugin; but i'm not sure so i'm not calling it that
-      $stdout.printf("[vim] [%s] [%s]\n", name(), ext_point)
-      ext_root = File.join(@install_dir, 'dot-vim', ext_point)
-      FileUtils.mkdir_p(ext_root) unless File.exists?(ext_root)
-      list = config[ext_point]
-      list.each { |ext|
-        ext_name = ext[0] # pathogen
-        ext_hash = ext[1] # {github_owner: tpope, github_repository: vim-pathogen, links: [autoload/pathogen.vim']}
-        $stdout.printf("[vim] [%s] [%s] [%s] [%s]\n", name(), ext_point, ext_name, ext_hash.inspect.to_s())
-        github_owner = ext_hash['github_owner']
-        github_repository = ext_hash['github_repository']
-        install_path = github_build_install_path(github_owner, github_repository)
-        # repositories/com.github/vim-scripts/xoria256
-        if File.exists?(install_path)
-          github_pull(install_path, 'origin', 'master')
-        else
-          github_clone(github_owner, github_repository, install_path)
-        end
-        links = ext_hash['links']
-        Dir.chdir(ext_root) {
-          links.each { |link|
-            link_source = File.join(install_path, link)
-            link_target = File.join(@install_dir, 'dot-vim', link)
-            next if File.exists?(link_target)
-            File.symlink(link_source, link_target)
-          }
-        }
+    config.each_key { |plugin|
+      hash = config[plugin]
+      $stdout.printf("[vim] [%s] [%s] [%s]\n", name(), plugin, hash.inspect.to_s())
+      github_owner = hash['github_owner']
+      github_repository = hash['github_repository']
+      install_path = github_build_install_path(github_owner, github_repository)
+      # repositories/com.github/vim-scripts/xoria256
+      if File.exists?(install_path)
+        github_pull(install_path, 'origin', 'master')
+      else
+        github_clone(github_owner, github_repository, install_path)
+      end
+      links = hash['links']
+      links.each { |link|
+        link_source = File.join(install_path, link)
+        link_target = File.join(@install_dir, 'dot-vim', link)
+        FileUtils.mkdir_p(File.dirname(link_target)) unless File.exists?(File.dirname(link_target))
+        next if File.exists?(link_target)
+        File.symlink(link_source, link_target)
       }
     }
   end

@@ -1,63 +1,35 @@
 ---
-autoload:
-  pathogen:
-    source: 'github'
-    github_owner: 'tpope'
-    github_repository: 'vim-pathogen'
-    links:
-      - 'autoload/pathogen.vim'
-colors:
-  navajo-night:
-    source: 'github'
-    github_owner: 'vim-scripts'
-    github_repository: 'navajo-night'
-    links:
-      - 'colors/navajo-night.vim'
-  xoria256:
-    source: 'github'
-    github_owner: 'vim-scripts'
-    github_repository: 'xoria256.vim'
-    links:
-      - 'colors/xoria256.vim'
-doc:
-  fugitive:
-    source: 'github'
-    github_owner: 'tpope'
-    github_repository: 'vim-fugitive'
-    links:
-      - 'doc/fugitive.txt'
-indent:
-  puppet:
-    source: 'github'
-    github_owner: 'puppetlabs'
-    github_repository: 'puppet-syntax-vim'
-    links:
-      - 'indent/puppet.vim'
-ftdetect:
-  puppet:
-    source: 'github'
-    github_owner: 'puppetlabs'
-    github_repository: 'puppet-syntax-vim'
-    links:
-      - 'ftdetect/puppet.vim'
-ftplugin:
-  puppet:
-    source: 'github'
-    github_owner: 'puppetlabs'
-    github_repository: 'puppet-syntax-vim'
-    links:
-      - 'ftplugin/puppet.vim'
-plugin:
-  fugitive:
-    source: 'github'
-    github_owner: 'tpope'
-    github_repository: 'vim-fugitive'
-    links:
-      - 'plugin/fugitive.vim'
-syntax:
-  puppet:
-    source: 'github'
-    github_owner: 'puppetlabs'
-    github_repository: 'puppet-syntax-vim'
-    links:
-      - 'indent/puppet.vim'
+fugitive:
+  source: 'github'
+  github_owner: 'tpope'
+  github_repository: 'vim-fugitive'
+  links:
+    - 'doc/fugitive.txt'
+    - 'plugin/fugitive.vim'
+navajo-night:
+  source: 'github'
+  github_owner: 'vim-scripts'
+  github_repository: 'navajo-night'
+  links:
+    - 'colors/navajo-night.vim'
+pathogen:
+  source: 'github'
+  github_owner: 'tpope'
+  github_repository: 'vim-pathogen'
+  links:
+    - 'autoload/pathogen.vim'
+puppet:
+  source: 'github'
+  github_owner: 'puppetlabs'
+  github_repository: 'puppet-syntax-vim'
+  links:
+    - 'ftdetect/puppet.vim'
+    - 'ftplugin/puppet.vim'
+    - 'indent/puppet.vim'
+    - 'syntax/puppet.vim'
+xoria256:
+  source: 'github'
+  github_owner: 'vim-scripts'
+  github_repository: 'xoria256.vim'
+  links:
+    - 'colors/xoria256.vim'
