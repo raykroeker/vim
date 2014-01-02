@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'FileUtils'
 require 'optparse'
+require 'yaml'
 
 def usage(message = nil)
   $stderr.printf("%s\n", message) unless message.nil?
@@ -18,7 +19,6 @@ class Command
     @bin = {}
     @dot_vim = File.expand_path(File.join(ENV['HOME'], '.vim'))
     @dot_vimrc = File.expand_path(File.join(ENV['HOME'], '.vimrc'))
-    #@install_dir = options[:directory]
     @install_dir = File.expand_path(File.dirname(__FILE__))
     @name = name
     @options = options
@@ -26,6 +26,34 @@ class Command
 
   def run
     $stdout.printf("[vim] [%s] [run] [options=%s]\n", name(), options().inspect.to_s())
+  end
+
+  def github_clone(owner = nil, repository = nil, path = nil)
+    # currently the path arg is ignored
+
+    #owner_path = File.join(@install_dir, 'repositories', 'com.github', owner)
+    #Dir.mkdir(owner_path) unless File.exists?(owner_path)
+    FileUtils.mkdir_p(path) unless File.exists?(path)
+
+    repository_url = github_build_repository_url(owner, repository)
+    github_clone_command = %Q[/usr/bin/git clone #{repository_url} #{path} 2>&1]
+    $stdout.printf("[vim] [%s] [%s]\n", name(), github_clone_command)
+    out = %x[#{github_clone_command}]
+    rc = $?
+    raise out unless rc == 0
+  end
+  def github_pull(path = nil, repository = nil, branch = nil)
+    Dir.chdir(path) { 
+      out = %x[/usr/bin/git pull #{repository} #{branch}]
+      rc = $?
+      raise out unless rc == 0
+    }
+  end
+  def github_build_install_path(owner = nil, repository = nil)
+    "#{@install_dir}/repositories/com.github/#{owner}/#{repository}"
+  end
+  def github_build_repository_url(owner = nil, repository = nil)
+    "git@github.com:#{owner}/#{repository}"
   end
 end
 
@@ -36,43 +64,15 @@ class Install < Command
   end
   def run
     super
-#    raise 'File exists:' + @install_dir if File.exists?(@install_dir)
     raise 'Invalid directory.' if @install_dir == @dot_vim
     raise 'File exists:' + @dot_vim if File.exists?(@dot_vim)
     raise 'File exists:' + @dot_vimrc if File.exists?(@dot_vimrc)
-
-    # clone into install dir
-#    out = %x[/usr/bin/git clone git@github.com:raykroeker/vim #{@install_dir} 2>&1]
-#    rc = $?
-#    raise 'Cannot clone repository.' unless rc == 0
-
-    Dir.mkdir(File.join(@install_dir, 'repositories'))
-    Dir.mkdir(File.join(@install_dir, 'repositories', 'com.github'))
-    Dir.mkdir(File.join(@install_dir, 'dot-vim'))
-    Dir.mkdir(File.join(@install_dir, 'dot-vim', 'autoload'))
-    Dir.mkdir(File.join(@install_dir, 'dot-vim', 'colors'))
-
-    # pathogen
-    github_clone('tpope', 'vim-pathogen')
-    File.symlink(File.join(@install_dir, 'repositories', 'com.github', 'tpope', 'vim-pathogen', 'autoload', 'pathogen.vim'),
-      File.join(@install_dir, 'dot-vim', 'autoload', 'pathogen.vim'))
-
-    # navajo-night
-    github_clone('vim-scripts', 'navajo-night')
-    File.symlink(File.join(@install_dir, 'repositories', 'com.github', 'vim-scripts', 'navajo-night', 'colors', 'navajo-night.vim'),
-      File.join(@install_dir, 'dot-vim', 'colors', 'navajo-night.vim'))
-
     # symlink [.vim,.vimrc] in the user's home dir
     File.symlink("#{@install_dir}/dot-vim", @dot_vim)
     File.symlink("#{@install_dir}/dot-vimrc", @dot_vimrc)
+    # update
+    Update.new(options).run
     $stdout.printf("[vim] [%s] [installed]\n", name())
-  end
-
-  def github_clone(owner = nil, repository = nil)
-    Dir.mkdir(File.join(@install_dir, 'repositories', 'com.github', owner))   
-    out = %x[/usr/bin/git clone git@github.com:#{owner}/#{repository} #{@install_dir}/repositories/com.github/#{owner}/#{repository} 2>&1]
-    rc = $?
-    raise 'Cannot clone repository:' + owner + '/' + repository unless rc == 0
   end
 end
 
@@ -82,11 +82,10 @@ class Remove < Command
   end
   def run
     super
-    File.unlink(@dot_vim) if File.exists?(@dot_vim) and File.symlink?(@dot_vim)
-    File.unlink(@dot_vimrc) if File.exists?(@dot_vimrc) and File.symlink?(@dot_vimrc)
+    File.unlink(@dot_vim) if File.symlink?(@dot_vim)
+    File.unlink(@dot_vimrc) if File.symlink?(@dot_vimrc)
     FileUtils.rm_rf(File.join(@install_dir, 'repositories'))
     FileUtils.rm_rf(File.join(@install_dir, 'dot-vim'))
-#    FileUtils.rm_rf(@install_dir) if File.exists?(@install_dir)
     $stdout.printf("[vim] [%s] [removed]\n", name())
   end
 end
@@ -94,6 +93,41 @@ end
 class Update < Command
   def initialize(options = {})
     super('update', options)
+  end
+  def run
+    config = YAML.load_file(File.join(File.expand_path(File.dirname(__FILE__)), 'vim.yaml'))
+    $stdout.printf("[vim] [%s] [config=%s]\n", name(), config.inspect.to_s())
+    config.each_key { |ext_point|
+      # the ext-point is an extension point within vim (i'm a relative vim newb; so i think this maps directly to a
+      # plugin; but i'm not sure so i'm not calling it that
+      $stdout.printf("[vim] [%s] [%s]\n", name(), ext_point)
+      ext_root = File.join(@install_dir, 'dot-vim', ext_point)
+      FileUtils.mkdir_p(ext_root) unless File.exists?(ext_root)
+      list = config[ext_point]
+      list.each { |ext|
+        ext_name = ext[0] # pathogen
+        ext_hash = ext[1] # {github_owner: tpope, github_repository: vim-pathogen, links: [autoload/pathogen.vim']}
+        $stdout.printf("[vim] [%s] [%s] [%s] [%s]\n", name(), ext_point, ext_name, ext_hash.inspect.to_s())
+        github_owner = ext_hash['github_owner']
+        github_repository = ext_hash['github_repository']
+        install_path = github_build_install_path(github_owner, github_repository)
+        # repositories/com.github/vim-scripts/xoria256
+        if File.exists?(install_path)
+          github_pull(install_path, 'origin', 'master')
+        else
+          github_clone(github_owner, github_repository, install_path)
+        end
+        links = ext_hash['links']
+        Dir.chdir(ext_root) {
+          links.each { |link|
+            link_source = File.join(install_path, link)
+            link_target = File.join(@install_dir, 'dot-vim', link)
+            next if File.exists?(link_target)
+            File.symlink(link_source, link_target)
+          }
+        }
+      }
+    }
   end
 end
 
