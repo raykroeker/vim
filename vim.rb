@@ -19,6 +19,7 @@ class Command
     @bin = {}
     @dot_vim = File.expand_path(File.join(ENV['HOME'], '.vim'))
     @dot_vimrc = File.expand_path(File.join(ENV['HOME'], '.vimrc'))
+    @github = {} # path => [true,false]
     @install_dir = File.expand_path(File.dirname(__FILE__))
     @name = name
     @options = options
@@ -29,10 +30,6 @@ class Command
   end
 
   def github_clone(owner = nil, repository = nil, path = nil)
-    # currently the path arg is ignored
-
-    #owner_path = File.join(@install_dir, 'repositories', 'com.github', owner)
-    #Dir.mkdir(owner_path) unless File.exists?(owner_path)
     FileUtils.mkdir_p(path) unless File.exists?(path)
 
     repository_url = github_build_repository_url(owner, repository)
@@ -41,13 +38,20 @@ class Command
     out = %x[#{github_clone_command}]
     rc = $?
     raise out unless rc == 0
+    @github[path] = true
   end
   def github_pull(path = nil, repository = nil, branch = nil)
+    # prevent reaching out multiple times per path
+    if @github[path] == true
+      $stdout.printf("[vim] [%s] [%s] [using repository cache]\n", name(), path)
+      return
+    end
     Dir.chdir(path) { 
       out = %x[/usr/bin/git pull #{repository} #{branch}]
       rc = $?
       raise out unless rc == 0
     }
+    @github[path] = true
   end
   def github_build_install_path(owner = nil, repository = nil)
     "#{@install_dir}/repositories/com.github/#{owner}/#{repository}"
