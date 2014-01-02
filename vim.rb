@@ -58,7 +58,7 @@ class Install < Command
       File.join(@install_dir, 'dot-vim', 'autoload', 'pathogen.vim'))
 
     # navajo-night
-    github_clone('vim-scripts', 'navajo-night.git')
+    github_clone('vim-scripts', 'navajo-night')
     File.symlink(File.join(@install_dir, 'repositories', 'com.github', 'vim-scripts', 'navajo-night', 'colors', 'navajo-night.vim'),
       File.join(@install_dir, 'dot-vim', 'colors', 'navajo-night.vim'))
 
