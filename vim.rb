@@ -8,21 +8,18 @@ def usage(message = nil)
   Kernel.exit(1)
 end
 
-def get_install_root
-  if @install_root.nil?
-    @install_root = File.expand_path(File.dirname(__FILE__))
-  end
-  @install_root
-end
-
 class Command
-  attr_reader :bin
   attr_reader :name
   attr_reader :options
+  attr_reader :dot_vim
+  attr_reader :dot_vimrc
 
   def initialize(name = nil, options = {})
     @bin = {}
-    @bin[:git] = '/usr/bin/git'
+    @dot_vim = File.expand_path(File.join(ENV['HOME'], '.vim'))
+    @dot_vimrc = File.expand_path(File.join(ENV['HOME'], '.vimrc'))
+    #@install_dir = options[:directory]
+    @install_dir = File.expand_path(File.dirname(__FILE__))
     @name = name
     @options = options
   end
@@ -33,36 +30,63 @@ class Command
 end
 
 class Install < Command
+
   def initialize(options = {})
     super('install', options)
-    @install_dir = options()[:directory]
   end
   def run
     super
-    raise 'Install directory exists.' if File.exists?(@install_dir)
+#    raise 'File exists:' + @install_dir if File.exists?(@install_dir)
+    raise 'Invalid directory.' if @install_dir == @dot_vim
+    raise 'File exists:' + @dot_vim if File.exists?(@dot_vim)
+    raise 'File exists:' + @dot_vimrc if File.exists?(@dot_vimrc)
+
     # clone into install dir
-    out = %x[#{@bin[:git]} clone git@github.com:raykroeker/vim #{@install_dir} 2>&1]
-    rc = $?
-    raise 'Cannot clone repository.' unless rc == 0
-    # symlink .vimrc in the install dir's parent to dot-vimrc
-    vimrc = File.expand_path(File.join(@install_dir, '..', '.vimrc'))
-    File.symlink("#{@install_dir}/dot-vimrc", vimrc)
+#    out = %x[/usr/bin/git clone git@github.com:raykroeker/vim #{@install_dir} 2>&1]
+#    rc = $?
+#    raise 'Cannot clone repository.' unless rc == 0
+
+    Dir.mkdir(File.join(@install_dir, 'repositories'))
+    Dir.mkdir(File.join(@install_dir, 'repositories', 'com.github'))
+    Dir.mkdir(File.join(@install_dir, 'dot-vim'))
+    Dir.mkdir(File.join(@install_dir, 'dot-vim', 'autoload'))
+    Dir.mkdir(File.join(@install_dir, 'dot-vim', 'colors'))
+
+    # pathogen
+    github_clone('tpope', 'vim-pathogen')
+    File.symlink(File.join(@install_dir, 'repositories', 'com.github', 'tpope', 'vim-pathogen', 'autoload', 'pathogen.vim'),
+      File.join(@install_dir, 'dot-vim', 'autoload', 'pathogen.vim'))
+
+    # navajo-night
+    github_clone('vim-scripts', 'navajo-night.git')
+    File.symlink(File.join(@install_dir, 'repositories', 'com.github', 'vim-scripts', 'navajo-night', 'colors', 'navajo-night.vim'),
+      File.join(@install_dir, 'dot-vim', 'colors', 'navajo-night.vim'))
+
+    # symlink [.vim,.vimrc] in the user's home dir
+    File.symlink("#{@install_dir}/dot-vim", @dot_vim)
+    File.symlink("#{@install_dir}/dot-vimrc", @dot_vimrc)
     $stdout.printf("[vim] [%s] [installed]\n", name())
+  end
+
+  def github_clone(owner = nil, repository = nil)
+    Dir.mkdir(File.join(@install_dir, 'repositories', 'com.github', owner))   
+    out = %x[/usr/bin/git clone git@github.com:#{owner}/#{repository} #{@install_dir}/repositories/com.github/#{owner}/#{repository} 2>&1]
+    rc = $?
+    raise 'Cannot clone repository:' + owner + '/' + repository unless rc == 0
   end
 end
 
 class Remove < Command
   def initialize(options = {})
     super('remove', options)
-    @install_dir = options()[:directory]
   end
   def run
     super
-    raise 'Install directory does not exist:' + @install_dir unless File.exists?(@install_dir)
-    vimrc = File.expand_path(File.join(@install_dir, '..', '.vimrc'))
-    raise 'File does not exist:' + vimrc unless File.exists?(vimrc)
-    File.unlink(vimrc)
-    FileUtils.rm_rf(@install_dir)
+    File.unlink(@dot_vim) if File.exists?(@dot_vim) and File.symlink?(@dot_vim)
+    File.unlink(@dot_vimrc) if File.exists?(@dot_vimrc) and File.symlink?(@dot_vimrc)
+    FileUtils.rm_rf(File.join(@install_dir, 'repositories'))
+    FileUtils.rm_rf(File.join(@install_dir, 'dot-vim'))
+#    FileUtils.rm_rf(@install_dir) if File.exists?(@install_dir)
     $stdout.printf("[vim] [%s] [removed]\n", name())
   end
 end
