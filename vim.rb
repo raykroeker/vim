@@ -104,37 +104,60 @@ class Update < Command
     config.each_key { |plugin|
       hash = config[plugin]
       $stdout.printf("[vim] [%s] [%s] [%s]\n", name(), plugin, hash.inspect.to_s())
-      github_owner = hash['github_owner']
-      github_repository = hash['github_repository']
-      install_path = github_build_install_path(github_owner, github_repository)
-      # repositories/com.github/vim-scripts/xoria256
-      if File.exists?(install_path)
-        github_pull(install_path, 'origin', 'master')
-      else
-        github_clone(github_owner, github_repository, install_path)
-      end
-      links = hash['links']
-      links.each { |link|
-        link_path = link.split('/')
-        # link parent is the parent dir within which the symlink to the vim script
-        # resides; ie colors, syntax
-        link_parent = File.join(@install_dir, 'dot-vim')
-        link_path.each_index { |i|
-          break if i == link_path.length - 1
-          link_parent << '/'
-          link_parent << link_path[i]
-        }
-        FileUtils.mkdir_p(link_parent) unless File.exists?(link_parent)
-        # link file is the filename
-        link_file = link_path[-1]
-        # link source is the relative path to the file in the git repo
-        link_source = File.join('..', '..', 'repositories', 'com.github', github_owner, github_repository, link)
-        Dir.chdir(link_parent) {
-          next if File.symlink?(link_file)
-          File.symlink(link_source, link_file)
-        }
+      github(hash) if hash['source'].eql?('github')
+      pathogen(hash) if hash['source'].eql?('pathogen')
+    }
+  end
+
+  def github_update(hash = {})
+    github_owner = hash['github_owner']
+    github_repository = hash['github_repository']
+    install_path = github_build_install_path(github_owner, github_repository)
+    # repositories/com.github/vim-scripts/xoria256
+    if File.exists?(install_path)
+      github_pull(install_path, 'origin', 'master')
+    else
+      github_clone(github_owner, github_repository, install_path)
+    end
+  end
+
+  def github(hash = {})
+    github_update(hash)
+    github_owner = hash['github_owner']
+    github_repository = hash['github_repository']
+    links = hash['links']
+    links.each { |link|
+      link_path = link.split('/')
+      # link parent is the parent dir within which the symlink to the vim script
+      # resides; ie colors, syntax
+      link_parent = File.join(@install_dir, 'dot-vim')
+      link_path.each_index { |i|
+        break if i == link_path.length - 1
+        link_parent << '/'
+        link_parent << link_path[i]
+      }
+      FileUtils.mkdir_p(link_parent) unless File.exists?(link_parent)
+      # link file is the filename
+      link_file = link_path[-1]
+      # link source is the relative path to the file in the git repo
+      link_source = File.join('..', '..', 'repositories', 'com.github', github_owner, github_repository, link)
+      Dir.chdir(link_parent) {
+        next if File.symlink?(link_file)
+        File.symlink(link_source, link_file)
       }
     }
+  end
+
+  def pathogen(hash = {})
+    github_update(hash)
+    github_owner = hash['github_owner']
+    github_repository = hash['github_repository']
+    pathogen_root = File.join(@install_dir, 'bundle')
+    FileUtils.mkdir_p(pathogen_root) unless File.exists?(pathogen_root)
+    link_file = File.join(pathogen_root, github_repository)
+    return if File.symlink?(link_file)
+    link_source = File.join('..', '..', 'repositories', 'com.github', github_owner, github_repository)
+    File.symlink(link_source, link_file)
   end
 end
 

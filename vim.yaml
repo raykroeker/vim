@@ -1,4 +1,12 @@
 ---
+dash:
+  source: 'pathogen'
+  github_owner: 'rizzatti'
+  github_repository: 'dash.vim'
+funcoo:
+  source: 'pathogen'
+  github_owner: 'rizzatti'
+  github_repository: 'funcoo.vim'
 fugitive:
   source: 'github'
   github_owner: 'tpope'

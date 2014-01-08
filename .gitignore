@@ -18,5 +18,6 @@ _yardoc
 doc/
 
 # vim artifacts
+bundle/
 repositories/
 dot-vim/
