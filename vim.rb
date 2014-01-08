@@ -152,7 +152,7 @@ class Update < Command
     github_update(hash)
     github_owner = hash['github_owner']
     github_repository = hash['github_repository']
-    pathogen_root = File.join(@install_dir, 'bundle')
+    pathogen_root = File.join(@install_dir, 'dot-vim', 'bundle')
     FileUtils.mkdir_p(pathogen_root) unless File.exists?(pathogen_root)
     link_file = File.join(pathogen_root, github_repository)
     return if File.symlink?(link_file)
