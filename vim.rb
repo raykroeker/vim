@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'FileUtils'
+require 'fileutils'
 require 'optparse'
 require 'yaml'
 
