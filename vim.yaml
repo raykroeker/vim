@@ -12,32 +12,45 @@ fugitive:
   github_owner: 'tpope'
   github_repository: 'vim-fugitive'
   links:
-    - 'doc/fugitive.txt'
-    - 'plugin/fugitive.vim'
+    doc/fugitive.txt: doc/fugitive.txt
+    plugin/fugitive.vim: plugin/fugitive.vim
+vundle:
+  source: 'github'
+  github_owner: 'gmarik'
+  github_repository: 'vundle'
+  links:
+    autoload: bundle/Vundle.vim/autoload
+    doc: bundle/Vundle.vim/doc
+daylerees_colour-schemes:
+  source: 'github'
+  github_owner: 'daylerees'
+  github_repository: 'colour-schemes'
+  links:
+    vim/colors: colors
 navajo-night:
   source: 'github'
   github_owner: 'vim-scripts'
   github_repository: 'navajo-night'
   links:
-    - 'colors/navajo-night.vim'
+    colors/navajo-night.vim: colors/navajo-night.vim
 pathogen:
   source: 'github'
   github_owner: 'tpope'
   github_repository: 'vim-pathogen'
   links:
-    - 'autoload/pathogen.vim'
+    autoload/pathogen.vim: autoload/pathogen.vim
 puppet:
   source: 'github'
   github_owner: 'puppetlabs'
   github_repository: 'puppet-syntax-vim'
   links:
-    - 'ftdetect/puppet.vim'
-    - 'ftplugin/puppet.vim'
-    - 'indent/puppet.vim'
-    - 'syntax/puppet.vim'
+    ftdetect/puppet.vim: ftdetect/puppet.vim
+    ftplugin/puppet.vim: ftplugin/puppet.vim
+    indent/puppet.vim: indent/puppet.vim
+    syntax/puppet.vim: syntax/puppet.vim
 xoria256:
   source: 'github'
   github_owner: 'vim-scripts'
   github_repository: 'xoria256.vim'
   links:
-    - 'colors/xoria256.vim'
+    colors/xoria256.vim: colors/xoria256.vim

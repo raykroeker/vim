@@ -125,25 +125,22 @@ class Update < Command
     github_update(hash)
     github_owner = hash['github_owner']
     github_repository = hash['github_repository']
-    links = hash['links']
-    links.each { |link|
-      link_path = link.split('/')
-      # link parent is the parent dir within which the symlink to the vim script
-      # resides; ie colors, syntax
-      link_parent = File.join(@install_dir, 'dot-vim')
-      link_path.each_index { |i|
-        break if i == link_path.length - 1
-        link_parent << '/'
-        link_parent << link_path[i]
-      }
+    dot_vim = File.join(@install_dir, 'dot-vim')
+    links = hash['links'] # links is a hash where key points at the source within the repo; and
+                          # value points at the symlink within the dot-vim tree
+    links.each { |k, v|
+      # parent directory
+      link_parent = File.dirname(File.join(dot_vim, v)) 
       FileUtils.mkdir_p(link_parent) unless File.exists?(link_parent)
-      # link file is the filename
-      link_file = link_path[-1]
-      # link source is the relative path to the file in the git repo
-      link_source = File.join('..', '..', 'repositories', 'com.github', github_owner, github_repository, link)
+      # target (existing)
+      link_target = File.expand_path(File.join(Dir.getwd, 'repositories', 'com.github', github_owner, github_repository, k))
+      # source (new)
+      link_source = File.join(dot_vim, v)
+      $stdout.printf("[vim] [%s] [link_parent=%s] [link_source=%s] [link_target=%s]\n", 'link',  link_parent, link_source, link_target)
+      # link
       Dir.chdir(link_parent) {
-        next if File.symlink?(link_file)
-        File.symlink(link_source, link_file)
+        # next if File.symlink?(link_source)
+        File.symlink(link_target, link_source)
       }
     }
   end
