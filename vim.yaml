@@ -30,7 +30,13 @@ daylerees_colour-schemes:
   github_owner: 'daylerees'
   github_repository: 'colour-schemes'
   links:
-    vim/colors: colors
+    vim/colors/darkside.vim: colors/darkside.vim
+fatih_molokai:
+  source: 'github'
+  github_owner: 'fatih'
+  github_repository: 'molokai'
+  links:
+    colors/molokai.vim: colors/molokai.vim
 navajo-night:
   source: 'github'
   github_owner: 'vim-scripts'
