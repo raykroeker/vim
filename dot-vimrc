@@ -19,5 +19,8 @@ set incsearch                   " incremental searching
 set ignorecase                  " searches are case insensitive...
 set smartcase                   " ... unless they contain at least one capital letter
 
+"" Moar Plugins
+execute pathogen#infect()
+
 "" Plugin
 filetype plugin indent on       " enable (among others) filetype specific indentation for puppet

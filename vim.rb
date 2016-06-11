@@ -187,5 +187,10 @@ ARGV.each { |argument|
 @command = @arguments[0] unless @arguments.empty?
 usage('No command specified:  ' + @commands.keys.inspect.to_s) if @command.nil?
 usage('no such command:' + @command) if not @commands.include?(@command)
-@commands[@command].run
+begin
+  @commands[@command].run
+rescue => re
+  $stdout.printf("[%s] [%s]\n%s\n", __FILE__, re.message, re.backtrace.join("\n\t"))
+  Kernel.exit(1)
+end
 
