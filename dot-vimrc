@@ -4,8 +4,8 @@ set hidden
 set number
 set encoding=utf-8
 set showcmd                     " display incomplete commands
-filetype plugin indent on       " load file type plugins + indentation
 color molokai
+set guifont=Monaco:h14
 
 "" Whitespace
 set nowrap                      " don't wrap lines
@@ -24,3 +24,7 @@ execute pathogen#infect()
 
 "" Plugin
 filetype plugin indent on       " enable (among others) filetype specific indentation for puppet
+
+"" Files
+autocmd BufNewFile,BufRead [vV]agrantfile set filetype=ruby
+
