@@ -28,3 +28,6 @@ filetype plugin indent on       " enable (among others) filetype specific indent
 "" Files
 autocmd BufNewFile,BufRead [vV]agrantfile set filetype=ruby
 
+"" TagBar
+nmap <F3> :TagbarToggle<CR>
+
