@@ -1,4 +1,8 @@
 ---
+colorized:
+  source: 'pathogen'
+  github_owner: 'altercation'
+  github_repository: 'vim-colors-solarized'
 dash:
   source: 'pathogen'
   github_owner: 'rizzatti'
