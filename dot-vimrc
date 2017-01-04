@@ -35,3 +35,5 @@ syntax enable
 set background=dark
 colorscheme solarized
 
+"" Navigation
+nmap <Tab> :b#<CR>
