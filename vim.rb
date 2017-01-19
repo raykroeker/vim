@@ -6,6 +6,7 @@ require 'yaml'
 def usage(message = nil)
   $stderr.printf("%s\n", message) unless message.nil?
   $stderr.printf('%s', @option_parser.to_s)
+  $stderr.printf("%s\n", @commands.map { |k, v| sprintf("%s\t- %s", k, v.usage) }.join("\n"))
   Kernel.exit(1)
 end
 
@@ -78,6 +79,9 @@ class Install < Command
     Update.new(options).run
     $stdout.printf("[vim] [%s] [installed]\n", name())
   end
+  def usage
+    'Install vim and its ilk.'
+  end
 end
 
 class Remove < Command
@@ -91,6 +95,9 @@ class Remove < Command
     FileUtils.rm_rf(File.join(@install_dir, 'repositories'))
     FileUtils.rm_rf(File.join(@install_dir, 'dot-vim'))
     $stdout.printf("[vim] [%s] [removed]\n", name())
+  end
+  def usage
+    'Remove vim and its ilk.'
   end
 end
 
@@ -156,8 +163,16 @@ class Update < Command
     link_source = File.join('..', '..', 'repositories', 'com.github', github_owner, github_repository)
     File.symlink(link_source, link_file)
   end
+  def usage
+    'Update vim plugins.'
+  end
 end
 
+@commands = {
+  'install' => Install.new(@options),
+  'remove'  => Remove.new(@options),
+  'update'  => Update.new(@options)
+}
 @options = {}
 @options[:directory] = ENV['HOME']
 @options[:force]     = false
@@ -172,6 +187,9 @@ end
   option.on('--noop') { |value|
     @options[:noop] = true
   }
+  option.on('--help') {
+    usage
+  }
 }
 @option_parser.parse!
 # arguments contain command
@@ -179,14 +197,9 @@ end
 ARGV.each { |argument|
   @arguments << argument
 }
-@commands = {
-  'install' => Install.new(@options),
-  'remove'  => Remove.new(@options),
-  'update'  => Update.new(@options)
-}
 @command = @arguments[0] unless @arguments.empty?
 usage('No command specified:  ' + @commands.keys.inspect.to_s) if @command.nil?
-usage('no such command:' + @command) if not @commands.include?(@command)
+usage('No such command:' + @command) if not @commands.include?(@command)
 begin
   @commands[@command].run
 rescue => re
