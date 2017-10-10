@@ -18,6 +18,10 @@ set incsearch                   " incremental searching
 set ignorecase                  " searches are case insensitive...
 set smartcase                   " ... unless they contain at least one capital letter
 
+"" Tagging
+"" Look in pwd then ~/
+set tags=.tags;~/.tags
+
 "" Moar Plugins
 execute pathogen#infect()
 
@@ -28,6 +32,9 @@ filetype plugin indent on       " enable (among others) filetype specific indent
 autocmd BufNewFile,BufRead [vV]agrantfile set filetype=ruby
 
 "" TagBar
+"" Exuberant ctags; brew install ctags
+"" https://thomashunter.name/blog/installing-vim-tagbar-with-macvim-in-os-x/
+let g:tagbar_ctags_bin='/usr/local/Cellar/ctags/5.8_1/bin/ctags'
 nmap <F3> :TagbarToggle<CR>
 
 "" Solarized
