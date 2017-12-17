@@ -2,7 +2,7 @@
 ack:
   source: 'pathogen'
   github_owner: 'mileszs'
-  github_repository: 'ack'
+  github_repository: 'ack.vim'
 colorized:
   source: 'pathogen'
   github_owner: 'altercation'
