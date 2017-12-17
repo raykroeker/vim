@@ -146,7 +146,7 @@ class Update < Command
       $stdout.printf("[vim] [%s] [link_parent=%s] [link_source=%s] [link_target=%s]\n", 'link',  link_parent, link_source, link_target)
       # link
       Dir.chdir(link_parent) {
-        # next if File.symlink?(link_source)
+        File.unlink(link_source) if File.symlink?(link_source)
         File.symlink(link_target, link_source)
       }
     }
