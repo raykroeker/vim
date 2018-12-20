@@ -26,10 +26,6 @@ go:
   source: 'pathogen'
   github_owner: 'fatih'
   github_repository: 'vim-go'
-go-explorer:
-  source: 'pathogen'
-  github_owner: 'garyburd'
-  github_repository: 'go-explorer'
 tagbar:
   source: 'pathogen'
   github_owner: 'majutsushi'
