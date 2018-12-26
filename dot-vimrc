@@ -4,7 +4,11 @@ set hidden
 set number
 set encoding=utf-8
 set showcmd                     " display incomplete commands
-set guifont=Monaco:h14
+
+"" Set GUI Font
+if has("gui_macvim")
+  set guifont=Monaco:h14
+endif
 
 "" Whitespace
 set nowrap                      " don't wrap lines

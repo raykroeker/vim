@@ -16,12 +16,9 @@ funcoo:
   github_owner: 'rizzatti'
   github_repository: 'funcoo.vim'
 fugitive:
-  source: 'github'
+  source: 'pathogen'
   github_owner: 'tpope'
   github_repository: 'vim-fugitive'
-  links:
-    doc/fugitive.txt: doc/fugitive.txt
-    plugin/fugitive.vim: plugin/fugitive.vim
 go:
   source: 'pathogen'
   github_owner: 'fatih'
