@@ -9,6 +9,9 @@ set showcmd                     " display incomplete commands
 if has("gui_macvim")
   set guifont=Monaco:h14
 endif
+set guioptions-=m " menubar
+set guioptions-=T " toolbar
+set guioptions-=r " right hand scroll
 
 "" Whitespace
 set nowrap                      " don't wrap lines
